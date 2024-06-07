@@ -1,0 +1,16 @@
+[package]
+name = "dreamluau"
+version = "0.1.0"
+authors = ["Y0SH1M4S73R <legoboyo@earthlink.net>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+meowtonin = { git = "https://github.com/Absolucy/meowtonin" }
+mlua = { version = "0.9.5", features = ["luau", "unstable"] }
+thiserror = { version = "*" }
+ctor = { version = "*" }
+constcat = { version = "*" }
+dreamluau_proc_macro = { path = "./proc_macro" }

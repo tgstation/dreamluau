@@ -1,0 +1,13 @@
+[package]
+name = "dreamluau_proc_macro"
+version = "0.1.0"
+authors = ["Y0SH1M4S73R <legoboyo@earthlink.net>"]
+edition = "2021"
+
+[lib]
+crate-type = ["proc-macro"]
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"

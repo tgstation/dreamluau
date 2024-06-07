@@ -1,0 +1,161 @@
+# Commented lines are for running tests when they are made
+
+name: dreamluau
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Force Rebuild"
+        required: false
+        type: "boolean"
+jobs:
+  check-needs-rebuild:
+    outputs:
+      needs-rebuild: ${{ steps.changed-files.outputs.any_changed || contains(github.event.head_commit.message, '[release]') }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check Modified Files
+        uses: tj-actions/changed-files@v35
+        if: ${{ !contains(github.event.head_commit.message, '[release]') }}
+        id: changed-files
+        with:
+          files: |
+            **/*.rs
+            Cargo.lock
+  build-windows:
+    runs-on: windows-latest
+    needs: check-needs-rebuild
+    if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: i686-pc-windows-msvc
+          components: rustfmt, clippy
+      - name: Clippy (all features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: clippy
+          args: --target i686-pc-windows-msvc --all-features --locked -- -D warnings
+      - name: Rustfmt
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: fmt
+          args: -- --check
+      - name: Build (release) (default features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: build
+          args: --target i686-pc-windows-msvc --release
+      - uses: actions/upload-artifact@v1
+        with:
+          name: dreamluau_windows
+          path: target/i686-pc-windows-msvc/release/dreamluau.dll
+  build-linux:
+    runs-on: ubuntu-20.04
+    needs: check-needs-rebuild
+    if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
+    env:
+      BYOND_MAJOR: 515
+      BYOND_MINOR: 1640
+      #PKG_CONFIG_ALLOW_CROSS: 1
+    steps:
+      - uses: actions/checkout@v1
+      #- run: |
+      #    sudo dpkg --add-architecture i386
+      #    sudo apt-get update
+      #    sudo apt-get install g++-multilib zlib1g-dev:i386 libssl-dev:i386
+      #    ./scripts/install_byond.sh
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: i686-unknown-linux-gnu
+      - name: Check (all features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: check
+          args: --target i686-unknown-linux-gnu --all-features
+      #- name: Build (Debug) (all features)
+      #  uses: actions-rs/cargo@v1
+      #  with:
+      #    toolchain: stable
+      #    command: build
+      #    args: --target i686-unknown-linux-gnu --all-features
+      #- name: Run tests (all features)
+      #  uses: actions-rs/cargo@v1
+      #  with:
+      #    toolchain: stable
+      #    command: test
+      #    args: --target i686-unknown-linux-gnu --all-features
+      #  env:
+      #    BYOND_BIN: /home/runner/BYOND/byond/bin
+      - name: Build (release) (default features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: build
+          args: --target i686-unknown-linux-gnu --release
+      - uses: actions/upload-artifact@v1
+        with:
+          name: dreamluau_linux
+          path: target/i686-unknown-linux-gnu/release/libdreamluau.so
+  release:
+    runs-on: ubuntu-20.04
+    needs: ["build-windows", "build-linux"]
+    if: contains(github.event.head_commit.message, '[release]')
+    steps:
+      - uses: actions/checkout@v1
+      - name: Download Artifacts
+        id: download_artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+      - name: Get changelog
+        run: |
+          VERSION=`grep -Po '(?<=^version = ")([^"]+)' ./Cargo.toml`
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          CHANGELOG_ENTRY=`grep --color=never -m 1 -Po '## \K(\[[0-9\.]+\].*)' CHANGELOG.md`
+          DESCRIPTION=`bash ./scripts/extract_changelog.sh $CHANGELOG_ENTRY`
+          echo "CHANGELOG_ENTRY=$CHANGELOG_ENTRY" >> $GITHUB_ENV
+          echo "CHANGELOG_DESCRIPTION<<EOF" >> $GITHUB_ENV
+          echo "$DESCRIPTION" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          body: ${{ env.CHANGELOG_DESCRIPTION }}
+      - name: Upload Linux build
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_linux/libdreamluau.so
+          asset_name: libdreamluau.so
+          asset_content_type: application/octet-stream
+      - name: Upload Windows build
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_windows/dreamluau.dll
+          asset_name: dreamluau.dll
+          asset_content_type: application/octet-stream
