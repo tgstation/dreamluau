@@ -34,7 +34,7 @@ jobs:
     needs: check-needs-rebuild
     if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -58,7 +58,7 @@ jobs:
           toolchain: stable
           command: build
           args: --target i686-pc-windows-msvc --release
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           name: dreamluau_windows
           path: target/i686-pc-windows-msvc/release/dreamluau.dll
@@ -71,11 +71,11 @@ jobs:
       BYOND_MINOR: 1640
       #PKG_CONFIG_ALLOW_CROSS: 1
     steps:
-      - uses: actions/checkout@v1
-      #- run: |
-      #    sudo dpkg --add-architecture i386
-      #    sudo apt-get update
-      #    sudo apt-get install g++-multilib zlib1g-dev:i386 libssl-dev:i386
+      - uses: actions/checkout@v4
+      - run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install g++-multilib zlib1g-dev:i386 libssl-dev:i386
       #    ./scripts/install_byond.sh
       - uses: actions-rs/toolchain@v1
         with:
@@ -107,7 +107,7 @@ jobs:
           toolchain: stable
           command: build
           args: --target i686-unknown-linux-gnu --release
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           name: dreamluau_linux
           path: target/i686-unknown-linux-gnu/release/libdreamluau.so
@@ -116,7 +116,7 @@ jobs:
     needs: ["build-windows", "build-linux"]
     if: contains(github.event.head_commit.message, '[release]')
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Download Artifacts
         id: download_artifacts
         uses: actions/download-artifact@v2
@@ -134,28 +134,13 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.VERSION }}
           release_name: ${{ env.VERSION }}
           body: ${{ env.CHANGELOG_DESCRIPTION }}
-      - name: Upload Linux build
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_linux/libdreamluau.so
-          asset_name: libdreamluau.so
-          asset_content_type: application/octet-stream
-      - name: Upload Windows build
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_windows/dreamluau.dll
-          asset_name: dreamluau.dll
-          asset_content_type: application/octet-stream
+          files: |
+            ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_linux/libdreamluau.so
+            ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_windows/dreamluau.dll

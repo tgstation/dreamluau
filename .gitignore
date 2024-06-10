@@ -1,2 +1,4 @@
 /target
-/Cargo.lock
+/tests/dm/*.dmb
+/tests/dm/*.int
+/tests/dm/*.rsc
