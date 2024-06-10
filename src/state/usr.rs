@@ -4,8 +4,8 @@ use dreamluau_proc_macro::map_statics;
 use meowtonin::{byond_fn, ByondValue};
 
 thread_local! {
-    static USR: RefCell<Option<ByondValue>> = RefCell::new(None);
-    static USR_STACK: RefCell<Vec<Option<ByondValue>>> = RefCell::new(vec![]);
+    static USR: RefCell<Option<ByondValue>> = const { RefCell::new(None) };
+    static USR_STACK: RefCell<Vec<Option<ByondValue>>> = const { RefCell::new(vec![]) };
 }
 
 /// Byondapi does not currently support natively getting `usr` from DM.
