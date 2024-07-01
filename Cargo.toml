@@ -11,6 +11,10 @@ crate-type = ["cdylib"]
 meowtonin = { git = "https://github.com/Absolucy/meowtonin" }
 mlua = { version = "0.9.5", features = ["luau", "unstable"] }
 thiserror = { version = "*" }
-ctor = { version = "*" }
 constcat = { version = "*" }
 dreamluau_proc_macro = { path = "./proc_macro" }
+
+[dev-dependencies]
+glob = { version = "*" }
+portpicker = { version = "*" }
+test-cdylib = { version = "*" }

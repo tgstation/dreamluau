@@ -1,4 +1,6 @@
+#ifndef DREAMLUAU
 #define DREAMLUAU (world.system_type == MS_WINDOWS ? "dreamluau.dll" : "libdreamluau.so")
+#endif
 
 #define DREAMLUAU_CALL(func) call_ext(DREAMLUAU, "byond:[#func]")
 
