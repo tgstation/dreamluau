@@ -8,7 +8,7 @@ use std::{
     fmt::Display,
     fs,
     io::{Error, ErrorKind, Read, Result as IoResult, Write},
-    net::TcpStream,
+    net::{Ipv4Addr, TcpStream},
     ops::DerefMut,
     path::{PathBuf, MAIN_SEPARATOR_STR},
     process::{Child, Command},
@@ -50,7 +50,7 @@ fn topic_stream() -> RwLockWriteGuard<'static, TcpStream> {
     static TOPIC_STREAM: OnceLock<RwLock<TcpStream>> = OnceLock::new();
     TOPIC_STREAM
         .get_or_init(|| {
-            let stream = TcpStream::connect(("127.0.0.1", *free_port())).unwrap();
+            let stream = TcpStream::connect((Ipv4Addr::LOCALHOST, *free_port())).unwrap();
             RwLock::new(stream)
         })
         .write()
