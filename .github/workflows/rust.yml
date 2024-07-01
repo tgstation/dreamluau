@@ -98,7 +98,7 @@ jobs:
         with:
           toolchain: stable
           command: test
-          args: --target i686-unknown-linux-gnu --all-features
+          args: --target i686-unknown-linux-gnu --all-features --jobs=1
         env:
           BYOND_BIN: /home/runner/BYOND/byond/bin
       - name: Build (release) (default features)
