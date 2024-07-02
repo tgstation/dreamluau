@@ -33,6 +33,7 @@ jobs:
     if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: i686-pc-windows-msvc
