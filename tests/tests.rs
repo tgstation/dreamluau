@@ -29,7 +29,7 @@ fn build() {
         if cfg!(windows) {
             "i686-pc-windows-msvc"
         } else {
-            "i686-unknown-linus-gnu"
+            "i686-unknown-linux-gnu"
         },
     );
     let dylib_path = test_cdylib::build_current_project()
