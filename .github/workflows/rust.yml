@@ -1,5 +1,3 @@
-# Commented lines are for running tests when they are made
-
 name: dreamluau
 on:
   push:
@@ -35,29 +33,22 @@ jobs:
     if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: i686-pc-windows-msvc
+          targets: i686-pc-windows-msvc
           components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Clippy (all features)
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: clippy
-          args: --target i686-pc-windows-msvc --all-features --locked -- -D warnings
+        run: cargo clippy --target i686-pc-windows-msvc --locked -- -D warnings
+
       - name: Rustfmt
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: fmt
-          args: -- --check
+        run: cargo fmt -- --check
+
       - name: Build (release) (default features)
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: build
-          args: --target i686-pc-windows-msvc --release
+        run: cargo build --target i686-pc-windows-msvc --locked --release
+
       - uses: actions/upload-artifact@v4
         with:
           name: dreamluau_windows
@@ -77,36 +68,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install g++-multilib zlib1g-dev:i386 libssl-dev:i386
           ./scripts/install_byond.sh
-      - uses: actions-rs/toolchain@v1
+
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: i686-unknown-linux-gnu
+          targets: i686-unknown-linux-gnu
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Check (all features)
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: check
-          args: --target i686-unknown-linux-gnu --all-features
+        run: cargo check --target i686-unknown-linux-gnu --locked
+
       - name: Build (Debug) (all features)
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: build
-          args: --target i686-unknown-linux-gnu --all-features
+        run: cargo build --target i686-unknown-linux-gnu --locked
+
       - name: Run tests (all features)
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: test
-          args: --target i686-unknown-linux-gnu --all-features --jobs=1
+        run: cargo test --target i686-unknown-linux-gnu --locked
         env:
           BYOND_BIN: /home/runner/BYOND/byond/bin
+
       - name: Build (release) (default features)
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: stable
-          command: build
-          args: --target i686-unknown-linux-gnu --release
       - uses: actions/upload-artifact@v4
         with:
           name: dreamluau_linux

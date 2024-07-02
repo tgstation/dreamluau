@@ -4,6 +4,7 @@ use glob::glob;
 use portpicker::pick_unused_port;
 use std::{
     borrow::Cow,
+    env,
     ffi::CStr,
     fmt::Display,
     fs,
@@ -13,6 +14,8 @@ use std::{
     path::{PathBuf, MAIN_SEPARATOR_STR},
     process::{Child, Command},
     sync::{Once, OnceLock, RwLock, RwLockWriteGuard},
+    thread::sleep,
+    time::Duration,
 };
 
 fn byond_bin() -> PathBuf {
@@ -21,10 +24,19 @@ fn byond_bin() -> PathBuf {
 
 fn build() {
     let byond_bin = byond_bin();
+    env::set_var(
+        "CARGO_BUILD_TARGET",
+        if cfg!(windows) {
+            "i686-pc-windows-msvc"
+        } else {
+            "i686-unknown-linus-gnu"
+        },
+    );
     let dylib_path = test_cdylib::build_current_project()
         .to_str()
         .expect("target path is invalid UTF-8")
         .replace(MAIN_SEPARATOR_STR, "/");
+    println!("{dylib_path}");
     let build_status = if cfg!(windows) {
         Command::new(byond_bin.join("dm.exe"))
     } else {
@@ -143,6 +155,8 @@ fn dreamdaemon() -> RwLockWriteGuard<'static, Child> {
                     fs::remove_file(file);
                 }
             }
+            fs::remove_file("tests/dm/tests.dmb");
+            fs::remove_file("tests/dm/tests.int");
         }
         atexit(cleanup);
     });
@@ -150,7 +164,7 @@ fn dreamdaemon() -> RwLockWriteGuard<'static, Child> {
         .get_or_init(|| {
             build();
             let byond_bin = byond_bin();
-            RwLock::new(
+            let lock = RwLock::new(
                 if cfg!(windows) {
                     Command::new(byond_bin.join("dd.exe"))
                 } else {
@@ -164,7 +178,9 @@ fn dreamdaemon() -> RwLockWriteGuard<'static, Child> {
                 .arg("-invisible")
                 .spawn()
                 .unwrap(),
-            )
+            );
+            sleep(Duration::from_secs_f32(3.0));
+            lock
         })
         .write()
         .unwrap()
