@@ -32,7 +32,7 @@ jobs:
     needs: check-needs-rebuild
     if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
     env:
-      BINDGEN_EXTRA_CLANG_ARGS: -DWIN32 -Di386
+      BINDGEN_EXTRA_CLANG_ARGS: -DWIN32 -Di386 --include=definechecker.h
     steps:
       - uses: actions/checkout@v4
 
