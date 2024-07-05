@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings.rs
-          path: target/i686-pc-windows-msvc/release/build/byondapi-sys**/out/bindings.rs
+          path: target/i686-pc-windows-msvc/debug/build/byondapi-sys**/out/bindings.rs
 
       - if: ${{ steps.upload_bindings.outcome == 'success' }}
         run: exit 1
