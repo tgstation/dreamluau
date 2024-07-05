@@ -42,6 +42,17 @@ jobs:
       - name: Clippy (all features)
         run: cargo clippy --target i686-pc-windows-msvc --locked -- -D warnings
 
+      - name: Upload bindings.rs build artifact
+        id: upload_bindings
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings.rs
+          path: target/i686-pc-windows/msvc/release/build/byondapi-sys**/out/bindings.rs
+
+      - if: ${{ steps.upload_bindings.outcome == 'success' }}
+        run: exit 1
+
       - name: Rustfmt
         run: cargo fmt -- --check
 
