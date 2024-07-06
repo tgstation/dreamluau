@@ -46,7 +46,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: i686-unknown-linux-gnu, i686-pc-windows-msvc
+          targets: i686-unknown-linux-gnu, i686-pc-windows-gnu
 
       - name: Check
         run: cargo check --target i686-unknown-linux-gnu --locked
@@ -66,7 +66,7 @@ jobs:
         run: cargo build --target i686-unknown-linux-gnu --locked --release
 
       - name: Build (release) (windows)
-        run: cargo build --target i686-pc-windows-msvc --locked --release
+        run: cargo build --target i686-pc-windows-gnu --locked --release
 
       - uses: actions/upload-artifact@v4
         with:
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: dreamluau_windows
-          path: target/i686-pc-windows-msvc/release/dreamluau.dll
+          path: target/i686-pc-windows-gnu/release/dreamluau.dll
   release:
     runs-on: ubuntu-20.04
     needs: "build"
