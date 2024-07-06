@@ -27,23 +27,14 @@ jobs:
           files: |
             **/*.rs
             Cargo.lock
-  what-is-defined-on-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: egor-tensin/setup-clang@v1
-        with:
-          platform: x86
-
-      - name: Preprocess definechecker.h
-        run: clang -x c definechecker.h -E
   build-windows:
     runs-on: windows-latest
     needs: check-needs-rebuild
     if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
     steps:
       - uses: actions/checkout@v4
+
+      - run: choco install llvm
 
       - uses: dtolnay/rust-toolchain@stable
         with:
