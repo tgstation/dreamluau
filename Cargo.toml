@@ -8,7 +8,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-meowtonin = { git = "https://github.com/Y0SH1M4S73R/meowtonin", branch = "no_bindgen_allowlist" }
+meowtonin = { git = "https://github.com/Absolucy/meowtonin" }
 mlua = { version = "0.9.5", features = ["luau", "unstable"] }
 thiserror = { version = "*" }
 constcat = { version = "*" }

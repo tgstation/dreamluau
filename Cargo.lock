@@ -107,7 +107,7 @@ dependencies = [
 [[package]]
 name = "byondapi-sys"
 version = "0.1.0"
-source = "git+https://github.com/Y0SH1M4S73R/meowtonin?branch=no_bindgen_allowlist#e14a8e3d917b9738f5575929b4a5c15aef29d56f"
+source = "git+https://github.com/Absolucy/meowtonin#7566af0099b5cd1c315a27f8fac8c1e867c72c91"
 dependencies = [
  "bindgen",
  "bytemuck",
@@ -354,7 +354,7 @@ checksum = "f665ee40bc4a3c5590afb1e9677db74a508659dfd71e126420da8274909a0167"
 [[package]]
 name = "meowtonin"
 version = "0.1.0"
-source = "git+https://github.com/Y0SH1M4S73R/meowtonin?branch=no_bindgen_allowlist#e14a8e3d917b9738f5575929b4a5c15aef29d56f"
+source = "git+https://github.com/Absolucy/meowtonin#7566af0099b5cd1c315a27f8fac8c1e867c72c91"
 dependencies = [
  "ahash",
  "backtrace",
@@ -378,7 +378,7 @@ dependencies = [
 [[package]]
 name = "meowtonin-impl"
 version = "0.1.0"
-source = "git+https://github.com/Y0SH1M4S73R/meowtonin?branch=no_bindgen_allowlist#e14a8e3d917b9738f5575929b4a5c15aef29d56f"
+source = "git+https://github.com/Absolucy/meowtonin#7566af0099b5cd1c315a27f8fac8c1e867c72c91"
 dependencies = [
  "proc-macro2",
  "quote",
