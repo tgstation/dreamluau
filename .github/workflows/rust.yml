@@ -41,7 +41,7 @@ jobs:
       - run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install g++-multilib g++-mingw-w64-i686-win32 zlib1g-dev:i386 libssl-dev:i386
+          sudo apt-get install g++-multilib g++-mingw-w64-i686 zlib1g-dev:i386 libssl-dev:i386
           ./scripts/install_byond.sh
 
       - uses: dtolnay/rust-toolchain@stable
