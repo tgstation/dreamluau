@@ -27,7 +27,43 @@ jobs:
           files: |
             **/*.rs
             Cargo.lock
-  build:
+  build-windows:
+    runs-on: windows-latest
+    needs: check-needs-rebuild
+    if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: i686-pc-windows-msvc
+          components: rustfmt, clippy
+
+      - name: Clippy (all features)
+        run: cargo clippy --target i686-pc-windows-msvc --locked -- -D warnings
+
+      - name: Upload bindings.rs build artifact
+        id: upload_bindings
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings.rs
+          path: target/i686-pc-windows-msvc/debug/build/byondapi-sys**/out/bindings.rs
+
+      - if: ${{ steps.upload_bindings.outcome == 'success' }}
+        run: exit 1
+
+      - name: Rustfmt
+        run: cargo fmt -- --check
+
+      - name: Build (release) (default features)
+        run: cargo build --target i686-pc-windows-msvc --locked --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dreamluau_windows
+          path: target/i686-pc-windows-msvc/release/dreamluau.dll
+  build-linux:
     runs-on: ubuntu-20.04
     needs: check-needs-rebuild
     if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
@@ -41,45 +77,34 @@ jobs:
       - run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install g++-multilib g++-mingw-w64-i686 zlib1g-dev:i386 libssl-dev:i386
+          sudo apt-get install g++-multilib zlib1g-dev:i386 libssl-dev:i386
           ./scripts/install_byond.sh
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: i686-unknown-linux-gnu, i686-pc-windows-gnu
+          targets: i686-unknown-linux-gnu
 
-      - name: Check
+      - name: Check (all features)
         run: cargo check --target i686-unknown-linux-gnu --locked
 
-      - name: Clippy
-        run: cargo clippy --target i686-unknown-linux-gnu --locked -- -D warnings
-
-      - name: Build (Debug)
+      - name: Build (Debug) (all features)
         run: cargo build --target i686-unknown-linux-gnu --locked
 
-      - name: Run tests
+      - name: Run tests (all features)
         run: cargo test --target i686-unknown-linux-gnu --locked
         env:
           BYOND_BIN: /home/runner/BYOND/byond/bin
 
-      - name: Build (release) (linux)
+      - name: Build (release) (default features)
         run: cargo build --target i686-unknown-linux-gnu --locked --release
-
-      - name: Build (release) (windows)
-        run: cargo build --target i686-pc-windows-gnu --locked --release
 
       - uses: actions/upload-artifact@v4
         with:
           name: dreamluau_linux
           path: target/i686-unknown-linux-gnu/release/libdreamluau.so
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dreamluau_windows
-          path: target/i686-pc-windows-gnu/release/dreamluau.dll
   release:
     runs-on: ubuntu-20.04
-    needs: "build"
+    needs: ["build-windows", "build-linux"]
     if: contains(github.event.head_commit.message, '[release]')
     steps:
       - uses: actions/checkout@v4
