@@ -23,13 +23,13 @@ on:
 jobs:
   check-should-rebuild:
     outputs:
-      should-rebuild: ${{ steps.changed-files.outputs.any_changed == 'true' || inputs.release != 'No Release' || inputs.force_rebuild }}
+      should-rebuild: ${{ (steps.changed-files.outputs.any_changed == 'true') || (inputs.release != 'No Release') || inputs.force_rebuild }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Check Modified Files
         uses: tj-actions/changed-files@v44
-        if: inputs.release != 'No Release' && !inputs.force_rebuild
+        if: (inputs.release != 'No Release') && !inputs.force_rebuild
         id: changed-files
         with:
           files: |
