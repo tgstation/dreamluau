@@ -12,6 +12,14 @@ on:
         description: "Force Rebuild"
         required: false
         type: "boolean"
+      release:
+        description: "Prepare Release"
+        type: "choice"
+        default: ${{ contains(github.event.head_commit.message, '[release]') && 'Full Release' || 'No Release' }}
+        options:
+          - "No Release"
+          - "Dry Run"
+          - "Full Release"
 jobs:
   check-needs-rebuild:
     outputs:
@@ -21,7 +29,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Check Modified Files
         uses: tj-actions/changed-files@v44
-        if: ${{ !contains(github.event.head_commit.message, '[release]') }}
+        if: ${{ inputs.release != 'No Release' }}
         id: changed-files
         with:
           files: |
@@ -94,12 +102,12 @@ jobs:
   release:
     runs-on: ubuntu-20.04
     needs: ["build-windows", "build-linux"]
-    if: contains(github.event.head_commit.message, '[release]')
+    if: inputs.release == 'Full Release'
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts
         id: download_artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Get changelog
@@ -112,6 +120,17 @@ jobs:
           echo "CHANGELOG_DESCRIPTION<<EOF" >> $GITHUB_ENV
           echo "$DESCRIPTION" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+      - name: Get Tags
+        id: tags
+        uses: octokit/request-action@v2.x
+         with:
+          route: GET /repos/${{ github.repository }}/git/matching-refs/tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate Tag is New
+        if: ${{ contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION) }}
+        run: |
+          exit 1
       - name: Create release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -119,7 +138,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
           body: ${{ env.CHANGELOG_DESCRIPTION }}
           files: |
             ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_linux/libdreamluau.so
