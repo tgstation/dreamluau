@@ -124,7 +124,7 @@ jobs:
         id: tags
         uses: octokit/request-action@v2.x
          with:
-           route: GET /repos/${{ github.repository }}/git/matching-refs/tags
+           route: ${{ format('GET /repos/{0}/git/matching-refs/tags', github.repository) }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Validate Tag is New
