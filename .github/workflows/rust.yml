@@ -27,9 +27,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
+        if: ${{ (inputs.release != 'No Release') && !inputs.force_rebuild }}
       - name: Check Modified Files
         uses: tj-actions/changed-files@v44
-        if: (inputs.release != 'No Release') && !inputs.force_rebuild
+        if: ${{ (inputs.release != 'No Release') && !inputs.force_rebuild }}
         id: changed-files
         with:
           files: |
@@ -38,7 +39,7 @@ jobs:
   build-windows:
     runs-on: windows-latest
     needs: check-should-rebuild
-    if: needs.check-should-rebuild.outputs.should-rebuild == 'true'
+    if: ${{ needs.check-should-rebuild.outputs.should-rebuild == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -63,7 +64,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-20.04
     needs: check-should-rebuild
-    if: needs.check-should-rebuild.outputs.should-rebuild == 'true'
+    if: ${{ needs.check-should-rebuild.outputs.should-rebuild == 'true' }}
     env:
       BYOND_MAJOR: 515
       BYOND_MINOR: 1640
@@ -102,11 +103,11 @@ jobs:
   release:
     runs-on: ubuntu-20.04
     needs: ["build-windows", "build-linux"]
-    if: inputs.release != 'No Release'
+    if: ${{ inputs.release != 'No Release' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts
-        if: inputs.release == 'Full Release'
+        if: ${{ inputs.release == 'Full Release' }}
         id: download_artifacts
         uses: actions/download-artifact@v4
         with:
@@ -125,7 +126,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Validate Tag is New
-        if: contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION))
+        if: ${{ contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION)) }}
         run: |
           if [[ $INPUT_release -eq 'Full Release']]
           then
@@ -135,14 +136,14 @@ jobs:
           echo "::warning:::A release with the tag \"$VERSION\" already exists."
           fi
       - name: Upload Changelog (Dry Run)
-        if: inputs.release == 'Dry Run'
+        if: ${{ inputs.release == 'Dry Run' }}
         uses: actions/upload-artifact@v4
         with:
           name: CHANGELOG.md
           path: tmp/CHANGELOG.md
       - name: Create Release
         id: create_release
-        if: inputs.release == 'Full Release'
+        if: ${{ inputs.release == 'Full Release' }}
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
