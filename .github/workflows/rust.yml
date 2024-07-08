@@ -125,7 +125,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Validate Tag is New
-        if: contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION)
+        if: contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION))
         run: |
           if [[ $INPUT_release -eq 'Full Release']]
           then
