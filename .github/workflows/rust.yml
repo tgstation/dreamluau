@@ -135,7 +135,7 @@ jobs:
           echo "::warning:::A release with the tag \"$VERSION\" already exists."
           fi
       - name: Upload Changelog (Dry Run)
-        if: ${{ input.release == 'Dry Run'}}
+        if: inputs.release == 'Dry Run'
         uses: actions/upload-artifact@v4
         with:
           name: CHANGELOG.md
