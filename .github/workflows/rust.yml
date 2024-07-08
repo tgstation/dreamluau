@@ -15,21 +15,21 @@ on:
       release:
         description: "Prepare Release"
         type: "choice"
-        default: ${{ contains(github.event.head_commit.message, '[release]') && 'Full Release' || 'No Release' }}
+        default: "No Release"
         options:
           - "No Release"
           - "Dry Run"
           - "Full Release"
 jobs:
-  check-needs-rebuild:
+  check-should-rebuild:
     outputs:
-      needs-rebuild: ${{ steps.changed-files.outputs.any_changed || contains(github.event.head_commit.message, '[release]') }}
+      should-rebuild: ${{ steps.changed-files.outputs.any_changed || inputs.release != 'No Release' || inputs.force_rebuild }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Check Modified Files
         uses: tj-actions/changed-files@v44
-        if: ${{ inputs.release != 'No Release' }}
+        if: inputs.release != 'No Release' && !inputs.force_rebuild
         id: changed-files
         with:
           files: |
@@ -37,8 +37,8 @@ jobs:
             Cargo.lock
   build-windows:
     runs-on: windows-latest
-    needs: check-needs-rebuild
-    if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
+    needs: check-should-rebuild
+    if: needs.check-should-rebuild.outputs.should-rebuild == 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -62,8 +62,8 @@ jobs:
           path: target/i686-pc-windows-msvc/release/dreamluau.dll
   build-linux:
     runs-on: ubuntu-20.04
-    needs: check-needs-rebuild
-    if: ${{ needs.check-needs-rebuild.outputs.needs-rebuild == 'true' || inputs.force_rebuild }}
+    needs: check-should-rebuild
+    if: needs.check-should-rebuild.outputs.should-rebuild == 'true'
     env:
       BYOND_MAJOR: 515
       BYOND_MINOR: 1640
@@ -102,10 +102,11 @@ jobs:
   release:
     runs-on: ubuntu-20.04
     needs: ["build-windows", "build-linux"]
-    if: inputs.release == 'Full Release'
+    if: inputs.release != 'No Release'
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts
+        if: inputs.release == 'Full Release'
         id: download_artifacts
         uses: actions/download-artifact@v4
         with:
@@ -115,31 +116,40 @@ jobs:
           VERSION=`grep -Po '(?<=^version = ")([^"]+)' ./Cargo.toml`
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           CHANGELOG_ENTRY=`grep --color=never -m 1 -Po '## \K(\[[0-9\.]+\].*)' CHANGELOG.md`
-          DESCRIPTION=`bash ./scripts/extract_changelog.sh $CHANGELOG_ENTRY`
-          echo "CHANGELOG_ENTRY=$CHANGELOG_ENTRY" >> $GITHUB_ENV
-          echo "CHANGELOG_DESCRIPTION<<EOF" >> $GITHUB_ENV
-          echo "$DESCRIPTION" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          `bash ./scripts/extract_changelog.sh $CHANGELOG_ENTRY >> tmp/CHANGELOG.md`
       - name: Get Tags
         id: tags
         uses: octokit/request-action@v2.x
-         with:
-           route: ${{ format('GET /repos/{0}/git/matching-refs/tags', github.repository) }}
+        with:
+          route: GET /repos/${{ github.repository }}/git/matching-refs/tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Validate Tag is New
-        if: ${{ contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION) }}
+        if: contains(steps.tags.outputs.data.*.ref, format('refs/tags/{0}', env.VERSION)
         run: |
+          if [[ $INPUT_release -eq 'Full Release']]
+          then
+          echo "::error::A release with the tag \"$VERSION\" already exists."
           exit 1
-      - name: Create release
+          else
+          echo "::warning:::A release with the tag \"$VERSION\" already exists."
+          fi
+      - name: Upload Changelog (Dry Run)
+        if: ${{ input.release == 'Dry Run'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: CHANGELOG.md
+          path: tmp/CHANGELOG.md
+      - name: Create Release
         id: create_release
+        if: inputs.release == 'Full Release'
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
-          body: ${{ env.CHANGELOG_DESCRIPTION }}
+          body_path: tmp/CHANGELOG.md
           files: |
             ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_linux/libdreamluau.so
             ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_windows/dreamluau.dll
