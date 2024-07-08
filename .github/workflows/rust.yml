@@ -124,3 +124,4 @@ jobs:
           files: |
             ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_linux/libdreamluau.so
             ${{ steps.download_artifacts.outputs.download-path }}/dreamluau_windows/dreamluau.dll
+            dmsrc/api.dm
