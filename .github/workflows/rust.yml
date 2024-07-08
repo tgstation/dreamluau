@@ -23,14 +23,14 @@ on:
 jobs:
   check-should-rebuild:
     outputs:
-      should-rebuild: ${{ (inputs.release != 'No Release') || inputs.force_rebuild || steps.changed-files.outputs.any_changed }}
+      should-rebuild: ${{ (inputs.release && input.release != 'No Release') || inputs.force_rebuild || steps.changed-files.outputs.any_changed }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
-        if: ${{ (inputs.release != 'No Release') && !inputs.force_rebuild }}
+        if: ${{ (inputs.release && input.release != 'No Release') && !inputs.force_rebuild }}
       - name: Check Modified Files
         uses: tj-actions/changed-files@v44
-        if: ${{ (inputs.release != 'No Release') && !inputs.force_rebuild }}
+        if: ${{ (inputs.release && input.release != 'No Release') && !inputs.force_rebuild }}
         id: changed-files
         with:
           files: |
@@ -103,7 +103,7 @@ jobs:
   release:
     runs-on: ubuntu-20.04
     needs: ["build-windows", "build-linux"]
-    if: ${{ inputs.release != 'No Release' }}
+    if: ${{ inputs.release && input.release != 'No Release' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts
