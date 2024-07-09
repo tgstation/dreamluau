@@ -117,6 +117,7 @@ jobs:
           VERSION=`grep -Po '(?<=^version = ")([^"]+)' ./Cargo.toml`
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           CHANGELOG_ENTRY=`grep --color=never -m 1 -Po '## \K(\[[0-9\.]+\].*)' CHANGELOG.md`
+          mkdir tmp
           `bash ./scripts/extract_changelog.sh $CHANGELOG_ENTRY` > tmp/CHANGELOG.md
       - name: Get Tags
         id: tags
