@@ -22,3 +22,9 @@ call_ext([path to dreamluau], "byond:[function_name]")(...arguments)
 ## Requirements
 
 Minimum supported BYOND version: 515.1631.
+
+### Debian packages
+g++-multilib
+zlib1g-dev:i386
+libssl-dev:i386
+
