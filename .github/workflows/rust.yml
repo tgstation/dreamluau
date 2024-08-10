@@ -104,6 +104,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: ["build-windows", "build-linux"]
     if: ${{ inputs.release && inputs.release != 'No Release' }}
+    permissions:
+        contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts
