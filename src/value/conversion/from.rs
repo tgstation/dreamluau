@@ -267,6 +267,13 @@ impl<'lua> FromLua<'lua> for Value {
             LuaValue::UserData(u) if u.is::<ByondObject>() => {
                 u.borrow::<ByondObject>().map(|r| Value(r.0.clone()))
             }
+            LuaValue::UserData(_) => Err(LuaError::FromLuaConversionError {
+                from: "destructed userdata",
+                to: "BYOND value",
+                message: Some(String::from(
+                    "The associated object has been cleared from lua memory",
+                )),
+            }),
             LuaValue::Table(t) => convert_from_table(lua, t),
             LuaValue::Vector(v) => [v.x(), v.y(), v.z()]
                 .to_byond()
