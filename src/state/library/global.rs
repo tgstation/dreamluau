@@ -18,9 +18,8 @@ impl LuaModule for GlobalModule {
     fn create_items<'lua>(&self, lua: &'lua Lua) -> LuaResult<Vec<(&str, LuaValue<'lua>)>> {
         let id = self.0;
         let id1 = self.0;
-        Ok(vec![
-            ("dm", (&DmModule as &dyn LuaModule).into_lua(lua)?),
-            ("list", (&ListModule as &dyn LuaModule).into_lua(lua)?),
+        let isolate = lua.named_registry_value::<bool>("isolated")?;
+        let mut items = vec![
             (
                 "loadstring",
                 Function::wrap(|lua, code: String| {
@@ -29,7 +28,6 @@ impl LuaModule for GlobalModule {
                 })
                 .into_lua(lua)?,
             ),
-            ("pointer", (&PointerModule as &dyn LuaModule).into_lua(lua)?),
             (
                 "sleep",
                 unsafe { lua.create_c_function(sleep) }.map(LuaValue::Function)?,
@@ -40,8 +38,15 @@ impl LuaModule for GlobalModule {
             ),
             ("_exec", (&ExecModule as &dyn LuaModule).into_lua(lua)?),
             ("_state_id", LuaValue::Integer(id)),
-        ])
+        ];
+        if !isolate {
+            items.push(("dm", (&DmModule as &dyn LuaModule).into_lua(lua)?));
+            items.push(("list", (&ListModule as &dyn LuaModule).into_lua(lua)?));
+            items.push(("pointer", (&PointerModule as &dyn LuaModule).into_lua(lua)?));
+        }
+        Ok(items)
     }
+
     fn create_metamethods<'lua>(
         &self,
         _: &'lua Lua,

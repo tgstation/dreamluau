@@ -82,6 +82,12 @@ impl<'lua> IntoLua<'lua> for Value {
                 .into_printed_external()?
                 .into_lua(lua);
         };
-        get_or_create_cached_userdata(self, lua)?.into_lua(lua)
+        // If isolated, never allow any sort of userdata to be exposed.
+        let isolate = lua.named_registry_value::<bool>("isolated")?;
+        if isolate {
+            Ok(LuaValue::Nil)
+        } else {
+            get_or_create_cached_userdata(self, lua)?.into_lua(lua)
+        }
     }
 }

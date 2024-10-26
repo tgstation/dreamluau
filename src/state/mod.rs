@@ -38,8 +38,10 @@ thread_local! {
 
 #[map_statics(mut STATES)]
 #[byond_fn]
-pub fn new_state() -> ByondResult<usize> {
+pub fn new_state(isolate: Option<bool>) -> ByondResult<usize> {
     let lua: Lua = Lua::new();
+    lua.set_named_registry_value("isolated", isolate.unwrap_or(false))
+        .map_err(ByondError::boxed)?;
     let new_state_index = states.iter().position(Option::is_none).unwrap_or_else(|| {
         states.push(None);
         states.len() - 1
@@ -68,6 +70,14 @@ fn get_state(index: usize) -> ByondResult<Rc<Lua>> {
         .ok_or(ByondError::Boxed(Box::<dyn Error + Send + Sync>::from(
             format!("No state at index {index}"),
         )))
+}
+
+#[byond_fn]
+pub fn is_isolated(index: usize) -> ByondResult<bool> {
+    get_state(index).and_then(|lua| {
+        lua.named_registry_value("isolated")
+            .map_err(ByondError::boxed)
+    })
 }
 
 #[byond_fn]
