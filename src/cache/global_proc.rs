@@ -43,9 +43,8 @@ pub fn global_proccall_function(lua: &Lua, proc: String) -> LuaResult<OwnedFunct
                     wrapped_global_call(proc_name.clone(), args.to_vec()).into_printed_external()
                 })
                 .map(Function::into_owned)
-                .map(|func| {
+                .inspect(|func| {
                     map.insert(proc.clone(), func.clone());
-                    func
                 })
             }
         })

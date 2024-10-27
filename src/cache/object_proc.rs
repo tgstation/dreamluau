@@ -46,9 +46,8 @@ pub fn object_proccall_function(lua: &Lua, proc: String) -> LuaResult<OwnedFunct
                         .into_printed_external()
                 })
                 .map(Function::into_owned)
-                .map(|func| {
+                .inspect(|func| {
                     map.insert(proc.clone(), func.clone());
-                    func
                 })
             }
         })
