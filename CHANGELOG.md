@@ -1,5 +1,13 @@
 #Changelog
 
+## [0.1.3]
+
+### Additions
+
+- An optional argument `isolated` can now be passed to `DREAMLUAU_NEW_STATE`. The following changes are applied to a state initialized with a truthy value of `isolated`:
+  - The `dm`, `list`, and `pointer` modules are not added to the global environment
+  - Function call and thread resume arguments other than `null`, numbers, and strings, are converted to `nil`
+
 ## [0.1.2]
 
 ### Changes
