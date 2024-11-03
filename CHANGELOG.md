@@ -1,5 +1,11 @@
 #Changelog
 
+## [0.1.4]
+
+### Additions
+
+- Individual states can have an execution limit override set with `set_state_execution_limit_millis` and `set_state_execution_limit_secs`, and cleared with `clear_state_execution_limit`. A state's execution limit override takes precedence over the global execution limit.
+
 ## [0.1.3]
 
 ### Additions
