@@ -71,10 +71,16 @@ pub fn set_privileged_execution(privileged: bool) {
 }
 
 #[map_statics(EXECUTION_START, EXECUTION_LIMIT, PRIVILEGED_EXECUTION)]
-pub fn limiting_interrupt(_: &Lua) -> LuaResult<VmState> {
-    match (execution_limit, execution_start, privileged_execution) {
+pub fn limiting_interrupt(lua: &Lua) -> LuaResult<VmState> {
+    match (
+        lua.named_registry_value::<Option<f32>>("exec_limit")?
+            .map(Duration::from_secs_f32)
+            .or(*execution_limit),
+        execution_start,
+        privileged_execution,
+    ) {
         (_, _, true) => Ok(VmState::Continue),
-        (Some(limit), Some(start), _) => (start.elapsed() <= *limit)
+        (Some(limit), Some(start), _) => (start.elapsed() <= limit)
             .then_some(VmState::Continue)
             .ok_or_else(|| {
                 LuaError::external(

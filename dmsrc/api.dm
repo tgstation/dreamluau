@@ -19,7 +19,7 @@
 
 
 /**
- * Sets the execution limit, in milliseconds.
+ * Sets the global execution limit, in milliseconds.
  * 
  * @param limit the new execution limit
  * 
@@ -28,7 +28,7 @@
 #define DREAMLUAU_SET_EXECUTION_LIMIT_MILLIS(limit) DREAMLUAU_CALL(set_execution_limit_millis)((limit))
 
 /**
- * Sets the execution limit, in seconds.
+ * Sets the global execution limit, in seconds.
  * 
  * @param limit the new execution limit
  * 
@@ -37,7 +37,7 @@
 #define DREAMLUAU_SET_EXECUTION_LIMIT_SECS(limit) DREAMLUAU_CALL(set_execution_limit_secs)((limit))
 
 /**
- * Clears the execution limit, allowing scripts to run as long as they need to.
+ * Clears the global execution limit, allowing scripts to run as long as they need to.
  * 
  * WARNING: This allows infinite loops to block Dream Daemon indefinitely, with no safety checks.
  * Do not use this if you have no reason for scripts to run arbitrarily long.
@@ -298,6 +298,37 @@
  * @return null on success
  */
 #define DREAMLUAU_CLEAR_REF_USERDATA(object) DREAMLUAU_CALL(clear_ref_userdata)((object))
+
+/**
+ * Sets a state's execution limit override, in milliseconds.
+ * 
+ * @param state the handle to the state
+ * 
+ * @param limit the new execution limit
+ * 
+ * @return null on success
+ */
+#define DREAMLUAU_SET_EXECUTION_LIMIT_MILLIS(state, limit) DREAMLUAU_CALL(set_execution_limit_millis)((state), (limit))
+
+/**
+ * Sets a state's execution limit override, in seconds.
+ * 
+ * @param state the handle to the state
+ * 
+ * @param limit the new execution limit
+ * 
+ * @return null on success
+ */
+#define DREAMLUAU_SET_EXECUTION_LIMIT_SECS(state, limit) DREAMLUAU_CALL(set_execution_limit_secs)((state), (limit))
+
+/**
+ * Clears a state's execution limit override, returning control of its execution to the global limit.
+ * 
+ * @param state the handle to the state
+ * 
+ * @return null on success
+ */
+#define DREAMLUAU_CLEAR_EXECUTION_LIMIT(state) DREAMLUAU_CALL(clear_execution_limit)((state))
 
 /proc/_hascall(object, procname)
     return hascall(object, procname)

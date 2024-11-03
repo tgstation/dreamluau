@@ -203,3 +203,30 @@ pub fn clear_ref_userdata(value: ByondValue) -> ByondResult<()> {
         .try_for_each(|lua| drop_cached_userdata(&Value(value.clone()), lua))
         .map_err(ByondError::boxed)
 }
+
+#[byond_fn]
+pub fn set_state_execution_limit_millis(index: usize, new_limit: u32) -> ByondResult<()> {
+    get_state(index).and_then(|state| {
+        state
+            .set_named_registry_value("exec_limit", new_limit as f32 * 1000.0)
+            .map_err(ByondError::boxed)
+    })
+}
+
+#[byond_fn]
+pub fn set_state_execution_limit_secs(index: usize, new_limit: f32) -> ByondResult<()> {
+    get_state(index).and_then(|state| {
+        state
+            .set_named_registry_value("exec_limit", new_limit)
+            .map_err(ByondError::boxed)
+    })
+}
+
+#[byond_fn]
+pub fn clear_state_execution_limit(index: usize) -> ByondResult<()> {
+    get_state(index).and_then(|state| {
+        state
+            .unset_named_registry_value("exec_limit")
+            .map_err(ByondError::boxed)
+    })
+}
