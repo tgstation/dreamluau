@@ -131,6 +131,10 @@
 /**
  * Create a new luau state.
  * 
+ * @param isolated if truthy, the `dm`, `list`, and `pointer` modules are not included in the state,
+ * and values other than null, numbers, or strings passed as function call or thread resume arguments
+ * are converted to `nil`
+ * 
  * @return a handle to the created state.
  */
 #define DREAMLUAU_NEW_STATE DREAMLUAU_CALL(new_state)
