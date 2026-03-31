@@ -24,7 +24,7 @@ pub struct Threads {
     pub sleeps: VecDeque<NamedThread>,
 }
 
-fn get_thread_storage(lua: &Lua) -> AppDataRef<Threads> {
+fn get_thread_storage(lua: &'_ Lua) -> AppDataRef<'_, Threads> {
     lua.app_data_ref::<Threads>()
         .or_else(|| {
             lua.set_app_data::<Threads>(Threads::default());
@@ -33,7 +33,7 @@ fn get_thread_storage(lua: &Lua) -> AppDataRef<Threads> {
         .unwrap()
 }
 
-fn get_thread_storage_mut(lua: &Lua) -> AppDataRefMut<Threads> {
+fn get_thread_storage_mut(lua: &'_ Lua) -> AppDataRefMut<'_, Threads> {
     lua.app_data_mut::<Threads>()
         .or_else(|| {
             lua.set_app_data::<Threads>(Threads::default());
@@ -56,7 +56,7 @@ pub fn push_yielded_thread(lua: &Lua, thread: NamedThread) -> LuaResult<Option<u
     }
 }
 
-pub fn next_yield_index(lua: &Lua) -> LuaResult<LuaValue> {
+pub fn next_yield_index(lua: &'_ Lua) -> LuaResult<LuaValue<'_>> {
     let storage = get_thread_storage(lua);
     let yields = &storage.yields;
     yields

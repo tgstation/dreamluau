@@ -19,7 +19,7 @@ use super::LuaModule;
 pub struct ExecModule;
 
 impl ExecModule {
-    fn exec_limit(lua: &Lua) -> LuaResult<LuaValue> {
+    fn exec_limit(lua: &'_ Lua) -> LuaResult<LuaValue<'_>> {
         get_execution_limit()
             .as_ref()
             .map(Duration::as_millis)
@@ -30,7 +30,7 @@ impl ExecModule {
             .and_then(|opt| opt.into_lua(lua))
     }
 
-    fn exec_time(lua: &Lua) -> LuaResult<LuaValue> {
+    fn exec_time(lua: &'_ Lua) -> LuaResult<LuaValue<'_>> {
         get_execution_time()
             .map(i32::try_from)
             .transpose()

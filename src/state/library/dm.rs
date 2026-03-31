@@ -35,7 +35,7 @@ impl DmModule {
         })
     }
 
-    fn usr(lua: &Lua) -> LuaResult<LuaValue> {
+    fn usr(lua: &'_ Lua) -> LuaResult<LuaValue<'_>> {
         peek_usr().map(Value).into_lua(lua)
     }
 

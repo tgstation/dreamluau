@@ -45,7 +45,7 @@ pub enum ConversionVariant {
 impl ToByond for ConversionVariant {
     fn to_byond(&self) -> ByondResult<ByondValue> {
         match self {
-            Self::None => Ok(ByondValue::null()),
+            Self::None => Ok(ByondValue::NULL),
             Self::ConversionError => Ok(ByondValue::new_string("error")),
             Self::Function => Ok(ByondValue::new_string("function")),
             Self::Thread => Ok(ByondValue::new_string("thread")),
@@ -227,7 +227,7 @@ pub fn convert_from_table_impl(
                                             key: ConversionVariant::None,
                                             value: ConversionVariant::None,
                                         };
-                                    if let Ok(i) = usize::from_byond(&key.0) {
+                                    if let Ok(i) = usize::from_byond(key.0) {
                                         if !can_be_none {
                                             variants[i - 1].replace(kvp);
                                         }
@@ -256,7 +256,7 @@ pub fn convert_from_table_impl(
 impl<'lua> FromLua<'lua> for Value {
     fn from_lua(value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
         match value {
-            LuaValue::Nil => Ok(Self(ByondValue::null())),
+            LuaValue::Nil => Ok(Self(ByondValue::NULL)),
             LuaValue::Boolean(b) => Ok(Self(b.to_byond().unwrap())),
             LuaValue::Integer(n) => n.to_byond().map(Self).into_printed_external(),
             LuaValue::Number(n) => (n as f32).to_byond().map(Self).into_printed_external(),

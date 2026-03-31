@@ -78,7 +78,7 @@ impl<'lua> IntoLua<'lua> for Value {
             return Ok(LuaValue::Number(self.0.get_number().unwrap() as f64));
         };
         if self.0.is_string() {
-            return CString::from_byond(&self.0)
+            return CString::from_byond(self.0)
                 .into_printed_external()?
                 .into_lua(lua);
         };
