@@ -195,12 +195,15 @@ pub fn kill_state(index: usize) -> ByondResult<()> {
 }
 
 #[map_statics(STATES)]
-#[byond_fn]
-pub fn clear_ref_userdata(value: ByondValue) -> ByondResult<()> {
+#[byond_fn(variadic)]
+pub fn clear_ref_userdata(args: Vec<ByondValue>) -> ByondResult<()> {
     states
         .iter()
         .filter_map(|opt| opt.as_deref())
-        .try_for_each(|lua| drop_cached_userdata(&Value(value.clone()), lua))
+        .try_for_each(|lua| {
+            args.iter()
+                .try_for_each(|value| drop_cached_userdata(&Value(value.clone()), lua))
+        })
         .map_err(ByondError::boxed)
 }
 
