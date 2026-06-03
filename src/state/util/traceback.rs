@@ -87,7 +87,7 @@ pub unsafe extern "C-unwind" fn dm_traceback(lua: *mut lua_State) -> i32 {
                 LuaValue::Nil => b"null".to_vec(),
                 LuaValue::UserData(u) if u.is::<ByondObject>() => {
                     let obj = &u.borrow::<ByondObject>().unwrap().0;
-                    let mut ostring = CString::from_byond(obj)
+                    let mut ostring = CString::from_byond(obj.clone())
                         .map(CString::into_bytes)
                         .unwrap_or_else(|_| b"???".to_vec());
                     if ostring.len() >= 30 {
@@ -156,7 +156,7 @@ pub fn pop_traceback_func() {
 #[byond_fn]
 pub fn get_traceback(index: usize) -> ByondResult<ByondValue> {
     if index == 0 || index > traceback_stack.len() {
-        Ok(ByondValue::null())
+        Ok(ByondValue::NULL)
     } else {
         set_privileged_execution(true); // We don't want the traceback function to fall afoul of the execution limit.
         let ret = traceback_stack[traceback_stack.len() - index]

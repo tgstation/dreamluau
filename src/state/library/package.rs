@@ -11,7 +11,7 @@ use super::LuaModule;
 pub struct PackageModule;
 
 impl PackageModule {
-    fn get_path_env_var(lua: &Lua) -> LuaResult<LuaValue> {
+    fn get_path_env_var(lua: &'_ Lua) -> LuaResult<LuaValue<'_>> {
         env::var("LUAU_PATH")
             .or_else(|_| env::var("LUA_PATH"))
             .unwrap_or(String::from("?.luau;?.lua"))

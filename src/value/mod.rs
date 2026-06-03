@@ -17,7 +17,7 @@ impl ToByond for Value {
 }
 
 impl FromByond for Value {
-    fn from_byond(value: &ByondValue) -> ByondResult<Self> {
+    fn from_byond(value: ByondValue) -> ByondResult<Self> {
         Ok(Self(value.clone()))
     }
 }

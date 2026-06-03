@@ -66,8 +66,8 @@ jobs:
     needs: check-should-rebuild
     if: ${{ needs.check-should-rebuild.outputs.should-rebuild == 'true' }}
     env:
-      BYOND_MAJOR: 515
-      BYOND_MINOR: 1640
+      BYOND_MAJOR: 516
+      BYOND_MINOR: 1680
       PKG_CONFIG_ALLOW_CROSS: 1
     steps:
       - uses: actions/checkout@v4
@@ -105,7 +105,7 @@ jobs:
     needs: ["build-windows", "build-linux"]
     if: ${{ inputs.release && inputs.release != 'No Release' }}
     permissions:
-        contents: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Download Artifacts

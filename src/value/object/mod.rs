@@ -39,7 +39,7 @@ impl UserData for ByondObject {
         });
         methods.add_meta_function(MetaMethod::Len, |_, Value(this)| {
             if this.is_list() {
-                Ok(this.length::<u32>().into_printed_external())
+                Ok(this.length().into_printed_external())
             } else {
                 Err(ByondError::NotAList.into_printed_external())
             }
@@ -47,9 +47,9 @@ impl UserData for ByondObject {
         methods.add_meta_function(MetaMethod::Iter, |_, Value(this)| {
             if this.is_list() {
                 Ok((
-                    Function::wrap(|lua, (Value(this), last_index): (Value, u32)| {
+                    Function::wrap(|lua, (Value(this), last_index): (Value, usize)| {
                         let index = last_index + 1;
-                        if index > this.length::<u32>().unwrap() {
+                        if index > this.length().unwrap() {
                             return Ok(MultiValue::new());
                         }
                         this.read_list_index::<_, Value>(&index)
@@ -64,7 +64,7 @@ impl UserData for ByondObject {
             }
         });
         methods.add_meta_function(MetaMethod::ToString, |_, Value(this)| {
-            CString::from_byond(&this).into_printed_external()
+            CString::from_byond(this).into_printed_external()
         });
         methods.add_meta_function(
             MetaMethod::NewIndex,
