@@ -1,5 +1,15 @@
 #Changelog
 
+## [0.2.0]
+
+### Breaking Changes
+
+- The `meowtonin` dependency depends on breaking changes made to byondapi in 516.1674. 1673 and earlier are no longer supported.
+
+### Changes
+
+- `DREAMLUAU_CLEAR_REF_USERDATA` is now a variadic function, accepting any number of arguments at once.
+
 ## [0.1.4]
 
 ### Additions
