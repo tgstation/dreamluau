@@ -24,7 +24,7 @@ jobs:
   check-should-rebuild:
     outputs:
       should-rebuild: ${{ (inputs.release && inputs.release != 'No Release') || inputs.force_rebuild || steps.changed-files.outputs.any_changed }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
         if: ${{ (inputs.release && inputs.release != 'No Release') && !inputs.force_rebuild }}
@@ -62,7 +62,7 @@ jobs:
           name: dreamluau_windows
           path: target/i686-pc-windows-msvc/release/dreamluau.dll
   build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: check-should-rebuild
     if: ${{ needs.check-should-rebuild.outputs.should-rebuild == 'true' }}
     env:
@@ -101,7 +101,7 @@ jobs:
           name: dreamluau_linux
           path: target/i686-unknown-linux-gnu/release/libdreamluau.so
   release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: ["build-windows", "build-linux"]
     if: ${{ inputs.release && inputs.release != 'No Release' }}
     permissions:
