@@ -41,7 +41,7 @@
 		throw EXCEPTION(result)
 	ASSERT(islist(result))
 	if(status)
-		ASSERT_EQ_MSG(result["status"], status, "expexted status of \"[status]\", got \"[result["status"]]\"")
+		ASSERT_EQ_MSG(result["status"], status, "expexted status of \"[status]\", got \"[result["status"]][result["message"] ? " ([result["message"]])" : ""]\"")
 	if(status == "error")
 		ASSERT_FINDTEXT(result["message"], errmsg, "expected error message containing \"[errmsg]\", got \"[result["message"]]\"")
 	if(isnum(values))
