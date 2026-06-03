@@ -1,5 +1,11 @@
 #Changelog
 
+## [0.2.1]
+
+### Changes
+
+- Bumps the `ahash` dependency.
+
 ## [0.2.0]
 
 ### Breaking Changes
