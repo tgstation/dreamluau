@@ -18,10 +18,10 @@ pub unsafe extern "C-unwind" fn get_entrypoint_function(lua: *mut lua_State) -> 
     let lua1 = lua_tothread(lua, -1);
     let mut level = 1;
     let mut ar: lua_Debug = mem::zeroed();
-    while lua_getinfo(lua1, level + 1, b"\0".as_ptr() as *const i8, &mut ar) == 1 {
+    while lua_getinfo(lua1, level + 1, c"".as_ptr(), &mut ar) == 1 {
         level += 1
     }
-    lua_getinfo(lua1, level, b"f\0".as_ptr() as *const i8, &mut ar)
+    lua_getinfo(lua1, level, c"f".as_ptr(), &mut ar)
 }
 
 pub fn get_entrypoint<'lua, T: IntoLua<'lua> + Clone>(

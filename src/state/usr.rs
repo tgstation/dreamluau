@@ -28,5 +28,5 @@ pub fn pop_usr() {
 
 #[map_statics(USR_STACK)]
 pub fn peek_usr() -> Option<ByondValue> {
-    usr_stack.iter().filter_map(|opt| opt.clone()).last()
+    usr_stack.iter().filter_map(|opt| opt.clone()).next_back()
 }
