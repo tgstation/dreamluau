@@ -27,4 +27,3 @@ Minimum supported BYOND version: 516.1674.
 
 g++-multilib
 zlib1g-dev:i386
-libssl-dev:i386
