@@ -67,7 +67,7 @@ jobs:
     if: ${{ needs.check-should-rebuild.outputs.should-rebuild == 'true' }}
     env:
       BYOND_MAJOR: 516
-      BYOND_MINOR: 1680
+      BYOND_MINOR: 1674
       PKG_CONFIG_ALLOW_CROSS: 1
     steps:
       - uses: actions/checkout@v4
