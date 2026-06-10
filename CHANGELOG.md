@@ -1,5 +1,11 @@
 #Changelog
 
+## [0.2.2]
+
+### Changes
+
+- Replaces `ahash` with `rustc-hash`.
+
 ## [0.2.1]
 
 ### Changes
